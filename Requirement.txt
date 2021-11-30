@@ -1,0 +1,37 @@
+Url : http://mystore.com/rest/v1/customorderdeails/id/:id
+
+customorderdeails
+id : order_id
+
+response format :
+	
+{
+	"order_id": "",
+	"items" : [
+		{
+			"product_id" : "",
+			"p_name" : "Product Name",
+			"image" : "image url",
+			"sold_price" : "",
+			"qty" : "",
+			"sold_special_price" : "",
+			"discount" : "",
+			"customer_id" : ""
+		},
+		
+		{
+			"product_id" : "",
+			"p_name" : "Product Name",
+			"image" : "image url",
+			"sold_price" : "",
+			"qty" : "",
+			"sold_special_price" : "",
+			"discount" : "",
+			"customer_id" : ""
+		}
+	],
+	"payment_method" : "",
+	"shipping_address" : "",
+	"shipping_method" : "",
+	"shipping_charge" : ""
+}

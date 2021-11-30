@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../app/code/Magento/Webapi/etc/webapi.xsd">
+    <route method="GET" url="/V1/customorderdeails/id/:id">
+        <service class="Ambab\CustomApi\Api\CustomOrderDetailsInterface" method="getOrderDetails"/>
+        <resources>
+            <resource ref="Ambab_CustomApi::orderdetails"/>
+        </resources>
+    </route>
+</routes>
