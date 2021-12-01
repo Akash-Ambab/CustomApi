@@ -32,14 +32,19 @@ class CustomOrderDetails
 
     public function getOrderDetails($id) {
         // $response = ['success' => false];
+
         $response = [];
         $i = 0;
         $orderId = $id;
         $order = $this->orderObj->get($orderId);
 
+        $store = $this->_storeManager->getStore();
+
         $order_date = new \DateTime($order->getCreatedAt());
 
         $response['entity_id'] = $order->getEntityId();
+
+
 
         foreach($order->getAllItems() as $item) {
 
@@ -49,31 +54,27 @@ class CustomOrderDetails
             $response['items'][$i]['product_id'] = $item->getProductId();
             $response['items'][$i]['product_name'] = $item->getName();
 
-            $store = $this->_storeManager->getStore();
-
             $response['items'][$i]['image_url'] = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product' .$productDetail->getImage();
             
-            $sprice = $this->specialPrice->get([$productDetail->getSku()]);
             $response['items'][$i]['sold_price'] = $item->getPrice();
+            $response['items'][$i]['product_price'] = $item->getOriginalPrice();
 
-
-            foreach($sprice as $special) {
-
-                $fromdate = new \DateTime($special['price_from']);
-                $todate = new \DateTime($special['price_to']);
-
-                if($fromdate <= $order_date && $order_date <= $todate) {
-                    $response['items'][$i]['special_price'] = (float) $special['value']; 
-                }
+            if ($item->getPrice() < $item->getOriginalPrice()) {
+                $response['items'][$i]['special_price'] = $item->getPrice();
             }
-            
             
             $response['items'][$i]['product_type'] = $productDetail->getTypeId();
             $response['items'][$i]['sold_qty'] = (int) $item->getQtyOrdered();
-            $response['items'][$i]['discount'] = (int) $item->getDiscountAmount();
+            $response['items'][$i]['discount'] = $item->getDiscountAmount();
             
             $i++;
         }
+
+        $response['order_value']['subtotal'] = $order->getSubtotal();
+        $response['order_value']['shipping_amount'] = $order->getShippingAmount();
+
+        $response['order_value']['discount'] = abs($order->getDiscountAmount());
+        $response['order_value']['grand_total'] = $order->getGrandTotal();
 
 
         $shippingaddress = $order->getShippingAddress();
@@ -83,15 +84,21 @@ class CustomOrderDetails
         $shippingpostcode = $shippingaddress->getPostcode();
         $shippingtelephone = $shippingaddress->getTelephone(); 
         $shippingstate_code = $shippingaddress->getRegionCode();
-        
+        $shippingcountry = $shippingaddress->getCountryId();
+
+        $fullname = $order->getCustomerFirstname() . " " . $order->getCustomerLastname();
+
+        $response['customer_info']['id'] = $order->getCustomerId();
+        $response['customer_info']['name'] = $fullname;
+                
         $response['payment_method'] = $order->getPayment()->getMethod();
-        $response['shipping_address']['city'] = $shippingcity;
         $response['shipping_address']['street'] = $shippingstreet;
+        $response['shipping_address']['city'] = $shippingcity;
         $response['shipping_address']['post_code'] = $shippingpostcode;
         $response['shipping_address']['state_code'] = $shippingstate_code;
+        $response['shipping_address']['country'] = $shippingcountry;
 
         $response['shipping_method'] = $order->getShippingDescription();
-        $response['shipping_amount'] = (float) $order->getShippingAmount();
 
         $result = ['success' => 'Order Details', 'message' => $response];        
         return $result;
@@ -100,6 +107,6 @@ class CustomOrderDetails
     
 
 
-
+    
     
 }
